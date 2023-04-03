@@ -1,5 +1,6 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <string>
 #include <memory>
 
 //custom deleter for the unique pointer
@@ -42,17 +43,27 @@ bool init()
     }
     else
     {
-        //create window
+        //Create window
         gWindow.reset(SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
         if(gWindow == NULL)
         {
-            std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << '\n';
+            std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << '\n';
             success = false;
         }
-        else
+        else 
         {
-            //get window surface
-            gScreenSurface.reset(SDL_GetWindowSurface(gWindow.get()));
+            //Intialise PNG loading
+            int imgFlags = IMG_INIT_PNG;
+            if (!(IMG_Init(imgFlags) & imgFlags)) 
+            {
+                std::cout << "SDL_image could not initialise! SDL_image Error: " << IMG_GetError() << '\n';
+                success = false;
+            }
+            else
+            {
+                //get window surface
+                gScreenSurface.reset(SDL_GetWindowSurface(gWindow.get()));
+            }
         }
     }
 
@@ -67,10 +78,10 @@ std::unique_ptr<SDL_Surface, custom_deleter<SDL_Surface>> loadSurface(std::strin
     
     //load image at specified path
     std::unique_ptr<SDL_Surface, custom_deleter<SDL_Surface>> loadedSurface{};
-    loadedSurface.reset(SDL_LoadBMP(path.c_str()));
+    loadedSurface.reset(IMG_Load(path.c_str()));
     if(loadedSurface == NULL)
     {
-        std::cout << "Unable to load image " << path.c_str() << "! SDL Error: " << SDL_GetError() << '\n';
+        std::cout << "Unable to load image " << path.c_str() << "! SDL Error: " << IMG_GetError() << '\n';
     }
     else
     {
@@ -95,10 +106,10 @@ bool loadMedia()
     bool success = true;
 
     //load splash image
-    gCurrentSurface.reset(loadSurface("stretch.bmp").get());
+    gCurrentSurface.reset(loadSurface("loaded.png").get());
     if(gCurrentSurface == NULL)
     {
-        std::cout << "Unable to load image ""stretch.bmp"" SDL Error: " << SDL_GetError() << '\n';
+        std::cout << "Unable to load image ""loaded.bmp"" SDL Error: " << SDL_GetError() << '\n';
         success = false;
     }
 
@@ -110,6 +121,7 @@ bool loadMedia()
 void close()
 {
     //quit SDL subsystems
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -148,13 +160,8 @@ int main()
                     }
                 }
         
-                //Apply the image stretched
-				SDL_Rect stretchRect;
-				stretchRect.x = 0;
-				stretchRect.y = 0;
-				stretchRect.w = SCREEN_WIDTH;
-				stretchRect.h = SCREEN_HEIGHT;
-				SDL_BlitScaled( gCurrentSurface.get(), NULL, gScreenSurface.get(), &stretchRect );
+                //Apply the image
+				SDL_BlitSurface(gCurrentSurface.get(), NULL, gScreenSurface.get(), NULL);
 
                 //update the surface
                 SDL_UpdateWindowSurface(gWindow.get());
