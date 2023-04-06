@@ -18,8 +18,7 @@ public:
 
     void close(LTexture& backgroundTexture, LTexture& fooTexture);
 
-    std::unique_ptr<SDL_Renderer, custom_deleter<SDL_Renderer>> &get(){ return  m_Renderer; }
-    SDL_Renderer *GetPtr(){ return m_Renderer.get(); }
+    SDL_Renderer* get(){ return m_Renderer.get(); }
 
     friend class LTexture;
     
