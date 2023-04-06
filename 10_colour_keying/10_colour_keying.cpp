@@ -52,8 +52,8 @@ int main()
                 }
 
                 //clear screen
-                SDL_SetRenderDrawColor(currentWindow.get(), 0xFF, 0xFF, 0xFF, 0xFF);
-                SDL_RenderClear(currentWindow.get());
+                SDL_SetRenderDrawColor(&currentWindow.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderClear(&currentWindow.get());
 
                 //Render background texture to screen
                 backgroundTexture.render(0,0, currentWindow);
@@ -62,7 +62,7 @@ int main()
                 fooTexture.render(240, 190, currentWindow);
 
                 //update screen
-                SDL_RenderPresent(currentWindow.get());
+                SDL_RenderPresent(&currentWindow.get());
             }
         }
     }

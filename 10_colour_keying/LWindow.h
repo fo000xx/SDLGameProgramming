@@ -18,7 +18,7 @@ public:
 
     void close(LTexture& backgroundTexture, LTexture& fooTexture);
 
-    SDL_Renderer get(){ return  *m_Renderer; }
+    SDL_Renderer& get(){ return  *m_Renderer; }
 
     friend class LTexture;
     
