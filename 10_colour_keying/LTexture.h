@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <SDL2/SDL_image.h>
-
 #include "customDeleter.h"
 
 class LWindow;

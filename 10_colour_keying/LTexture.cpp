@@ -5,6 +5,7 @@
 #include "LTexture.h"
 #include "LWindow.h"
 #include "colours.h"
+#include "customDeleter.h"
 
 bool LTexture::loadFromFile(std::string path, LWindow& currentWindow)
 {
@@ -17,25 +18,25 @@ bool LTexture::loadFromFile(std::string path, LWindow& currentWindow)
     }
 
     std::unique_ptr<SDL_Surface, customDeleter<SDL_Surface>> RAIILoadedSurface{rawLoadedSurface};
-    SDL_SetColorKey(RAIILoadedSurface.get(), SDL_TRUE, SDL_MapRGB(RAIILoadedSurface->format, Cyan::red_rgba, Cyan::green_rgba, Cyan::blue_rgba));
+    SDL_SetColorKey(RAIILoadedSurface.get(), SDL_TRUE, SDL_MapRGB(RAIILoadedSurface->format, CYAN::red_rgba, CYAN::green_rgba, CYAN::blue_rgba));
 
     auto* newRawTexture = SDL_CreateTextureFromSurface(&currentWindow.getRenderer(), RAIILoadedSurface.get());
-    if(newRawTexture == NULL)
-    {
+    if(newRawTexture == NULL) {
         std::cout << "Unable to create texture from " << path.c_str() << " SDL Error: " << SDL_GetError() << '\n';
         return false;
     }
 
-    //changing this to the raw pointer wrapped by unique_ptr stops the image loading.
-    std::unique_ptr<SDL_Texture, customDeleter<SDL_Texture>> newTexture{};
-    newTexture.reset(newRawTexture);
-
     mTextureWidth = RAIILoadedSurface->w;
     mTextureHeight = RAIILoadedSurface->h;
 
-    //rework so the code is more verbose
-    mTexture.reset(newTexture.get());
-    return mTexture.get() != NULL;
+    mTexture.reset(std::move(newRawTexture));
+    
+    if (mTexture == NULL) {
+        std::cout << "Texture move has failed\n";
+        return false;
+    }
+
+    return true;
 }
 
 void LTexture::resetTextureParams()

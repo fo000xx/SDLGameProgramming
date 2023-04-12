@@ -2,8 +2,6 @@
 #include <string>
 #include <memory>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_rect.h>
-#include <SDL2/SDL_render.h>
 #include "LWindow.h"
 #include "LTexture.h"
 #include "colours.h"
@@ -17,8 +15,7 @@ int main()
     LTexture backgroundTexture{}; 
     
     if(!currentWindow.loadMedia(fooTexture, backgroundTexture)) {
-        std::cout << "Failed to load media\n";
-        //failure case.
+        std::cout << "Failed to load media, aborting program\n";
         return 1;
     }
 
@@ -33,7 +30,7 @@ int main()
             }
         }
 
-        SDL_SetRenderDrawColor(&currentWindow.getRenderer(), White::red_rgba, White::green_rgba, White::blue_rgba, White::alpha_rgba);
+        SDL_SetRenderDrawColor(&currentWindow.getRenderer(), WHITE::red_rgba, WHITE::green_rgba, WHITE::blue_rgba, WHITE::alpha_rgba);
         SDL_RenderClear(&currentWindow.getRenderer());
 
         //render textures to their respective co-ords

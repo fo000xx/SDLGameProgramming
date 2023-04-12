@@ -1,14 +1,15 @@
 #ifndef COLOURS_H
 #define COLOURS_H
 
-namespace Cyan
+namespace CYAN
 {
     constexpr auto red_rgba{ 0 };
     constexpr auto green_rgba{ 0xFF };
     constexpr auto blue_rgba{ 0xFF };
+    constexpr auto alpha_rgba{ 0xFF };
 };
 
-namespace White
+namespace WHITE
 {
     constexpr auto red_rgba{ 0xFF };
     constexpr auto green_rgba{ 0xFF };
