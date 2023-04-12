@@ -9,7 +9,6 @@
 int main()
 {
     LWindow currentWindow{};
-    //add failure to initialise error here?
 
     LTexture fooTexture{};
     LTexture backgroundTexture{}; 
@@ -39,6 +38,9 @@ int main()
 
         SDL_RenderPresent(&currentWindow.getRenderer());
     }
+
+    IMG_Quit();
+    SDL_Quit();
 
     return 0;
 }
