@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 project(colourkeying)
-add_executable(colourkeying 10_colour_keying.cpp LWindow.cpp LTexture.cpp)
+add_executable(colourkeying main.cpp LWindow.cpp LTexture.cpp)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)

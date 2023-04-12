@@ -4,61 +4,50 @@
 #include <SDL2/SDL_image.h>
 #include "LTexture.h"
 #include "LWindow.h"
-
+#include "colours.h"
 
 bool LTexture::loadFromFile(std::string path, LWindow& currentWindow)
 {
-    //get rid of preexisting texture
-    free();
+    resetTextureParams();
 
-    //final texture
-    std::unique_ptr<SDL_Texture, custom_deleter<SDL_Texture>> newTexture{};
-
-    //load image at specified path
-    std::unique_ptr<SDL_Surface, custom_deleter<SDL_Surface>> loadedSurface{};
-    loadedSurface.reset(IMG_Load(path.c_str()));
-    if(loadedSurface == NULL)
-    {
+    auto* rawLoadedSurface = IMG_Load(path.c_str());
+    if(rawLoadedSurface == NULL) {
         std::cout << "Unable to load image " << path.c_str() << "! SDL Error: " << IMG_GetError() << '\n';
+        return false;
     }
-    else 
+
+    std::unique_ptr<SDL_Surface, customDeleter<SDL_Surface>> RAIILoadedSurface{rawLoadedSurface};
+    SDL_SetColorKey(RAIILoadedSurface.get(), SDL_TRUE, SDL_MapRGB(RAIILoadedSurface->format, Cyan::red_rgba, Cyan::green_rgba, Cyan::blue_rgba));
+
+    auto* newRawTexture = SDL_CreateTextureFromSurface(&currentWindow.getRenderer(), RAIILoadedSurface.get());
+    if(newRawTexture == NULL)
     {
-        //colour key image
-        SDL_SetColorKey(loadedSurface.get(), SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
-        
-        //create texture from surface pixels
-        newTexture.reset(SDL_CreateTextureFromSurface(currentWindow.m_Renderer.get(), loadedSurface.get()));
-        if(newTexture == NULL)
-        {
-            std::cout << "Unable to create texture from " << path.c_str() << " SDL Error: " << SDL_GetError() << '\n';
-        }
-        else {
-            //get image dimensions
-            m_Width = loadedSurface->w;
-            m_Height = loadedSurface->h;
-        }
-
-        //get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface.get());
+        std::cout << "Unable to create texture from " << path.c_str() << " SDL Error: " << SDL_GetError() << '\n';
+        return false;
     }
 
-    //return success
-    m_Texture.reset(newTexture.get());
-    return m_Texture.get() != NULL;
+    //changing this to the raw pointer wrapped by unique_ptr stops the image loading.
+    std::unique_ptr<SDL_Texture, customDeleter<SDL_Texture>> newTexture{};
+    newTexture.reset(newRawTexture);
+
+    mTextureWidth = RAIILoadedSurface->w;
+    mTextureHeight = RAIILoadedSurface->h;
+
+    //rework so the code is more verbose
+    mTexture.reset(newTexture.get());
+    return mTexture.get() != NULL;
 }
 
-void LTexture::free()
+void LTexture::resetTextureParams()
 {
-    //reset the texture
-    if (m_Texture != NULL) {
-        m_Width = 0;
-        m_Height = 0;
+    if (mTexture != NULL) {
+        mTextureWidth = 0;
+        mTextureHeight = 0;
     }
 }
 
-void LTexture::render(int x, int y, LWindow& currentWindow)
+void LTexture::renderTexture(int x, int y, LWindow& currentWindow)
 {
-    //set rendering space and render to screen
-    SDL_Rect renderQuad{ x, y, m_Width, m_Height };
-    SDL_RenderCopy(currentWindow.m_Renderer.get(), m_Texture.get(), NULL, &renderQuad);
+    SDL_Rect renderArea{ x, y, mTextureWidth, mTextureHeight };
+    SDL_RenderCopy(&currentWindow.getRenderer(), mTexture.get(), NULL, &renderArea);
 }

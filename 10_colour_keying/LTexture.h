@@ -12,31 +12,26 @@ class LWindow;
 class LTexture
 {
 public:
-    //constructor
-    LTexture() : m_Width{ 0 }, m_Height{ 0 }, m_Texture{}
+    LTexture() : mTextureWidth{ 0 }, mTextureHeight{ 0 }, mTexture{ nullptr }
     {
     }
 
-    //clears current texture
-    void free();
+    ~LTexture()
+    {
+        this->resetTextureParams();
+    }
 
-    //loads image at specified path
+    void resetTextureParams();
+
     bool loadFromFile(std::string path, LWindow& currentWindow);
 
-    //renders texture at given point
-    void render(int x, int y, LWindow& currentWindow);
-
-    //gets image dimensions
-    int getWidth() { return m_Width; }
-    int getHeight() { return m_Height; }
+    void renderTexture(int x, int y, LWindow& currentWindow);
 
 private:
-    //actual hardware texture
-    std::unique_ptr<SDL_Texture, custom_deleter<SDL_Texture>> m_Texture{};
+    std::unique_ptr<SDL_Texture, customDeleter<SDL_Texture>> mTexture{};
     
-    //image dimensions
-    int m_Width{};
-    int m_Height{};
+    int mTextureWidth{};
+    int mTextureHeight{};
 };
 
 #endif
